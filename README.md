@@ -1,32 +1,66 @@
-# React + TypeScript + Vite
+# Tracy — Traceability MVP Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Frontend for the Tracy UCO traceability platform. Built with React + Vite + TanStack Router + Tailwind CSS + shadcn/ui. All data is dummy/static — no backend connection required.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- [Node.js](https://nodejs.org/) v18 or higher
+- npm (comes with Node)
 
-## React Compiler
+## Running locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# 1. Clone the repo
+git clone https://github.com/noovoleum/noov-traceability-prototype-2.git
+cd noov-traceability-prototype-2
 
-## Expanding the Oxlint configuration
+# 2. Install dependencies
+npm install
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+# 3. Start the dev server
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Then open **http://localhost:5173** in your browser.
+
+## Demo accounts
+
+Use these to log in — no setup needed:
+
+| Role      | Email                   | Password       |
+|-----------|-------------------------|----------------|
+| Admin     | admin@tracy.com         | admin123       |
+| Collector | collector@tracy.com     | collector123   |
+| Auditor   | auditor@tracy.com       | auditor123     |
+
+## Role permissions
+
+| Feature              | Admin | Collector | Auditor |
+|----------------------|:-----:|:---------:|:-------:|
+| Dashboard            | ✅    | ✅        | ✅      |
+| Inventory            | ✅    | ✅        | ✅ (read-only) |
+| Assets & Storage     | ✅    | ✅        | ✅      |
+| Origins (PoO)        | ✅    | ✅        | ❌      |
+| Actors               | ✅    | ❌        | ❌      |
+| Trace Units          | ✅    | ✅        | ✅ (read-only) |
+| Audit Log            | ✅    | ❌        | ✅      |
+| Settings             | ✅    | ❌        | ❌      |
+| Create Trace Unit    | ✅    | ✅        | ❌      |
+
+## Tech stack
+
+- [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vite.dev/)
+- [TanStack Router](https://tanstack.com/router)
+- [TanStack Query](https://tanstack.com/query)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Lucide React](https://lucide.dev/) icons
+- [React Flow (@xyflow/react)](https://reactflow.dev/) for TU lineage graph
+- [better-auth](https://www.better-auth.com/) client (mock auth — no backend)
+
+## Other commands
+
+```bash
+npm run build    # production build → dist/
+npm run preview  # preview the production build locally
+```
