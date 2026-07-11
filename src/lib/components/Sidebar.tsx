@@ -9,7 +9,7 @@ const navItems = [
     { path: '/inventory', label: 'Inventory', icon: Package, roles: ['admin', 'collector', 'auditor'] },
     { path: '/assets', label: 'Assets & Storage', icon: Warehouse, roles: ['admin', 'collector', 'auditor'] },
     { path: '/origins', label: 'Origins', icon: MapPin, roles: ['admin', 'collector'] },
-    { path: '/actors', label: 'Actors', icon: Users, roles: ['admin'] },
+    { path: '/actors', label: 'Organizations', icon: Users, roles: ['admin', 'collector', 'auditor'] },
   ]},
   { section: 'Events', items: [
     { path: '/trace-units', label: 'Trace Units', icon: GitBranch, roles: ['admin', 'collector', 'auditor'] },

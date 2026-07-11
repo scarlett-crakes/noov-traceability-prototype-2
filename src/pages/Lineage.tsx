@@ -40,7 +40,7 @@ function buildEdges(rawEdges: typeof dummyLineage[string]['edges']): Edge[] {
     label: e.label,
     labelStyle: { fontSize: 10, fill: '#6B7280' },
     style: { stroke: '#D1D5DB', strokeWidth: 1.5 },
-    animated: e.label === 'transferred',
+    animated: e.animated ?? false,
   }))
 }
 
