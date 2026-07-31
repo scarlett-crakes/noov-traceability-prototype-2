@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '@/lib/AuthContext'
 import { useNavigate } from '@tanstack/react-router'
 import { Leaf } from 'lucide-react'
-import { DUMMY_USERS } from '@/lib/auth'
+import { DEMO_ACCOUNTS } from '@/lib/auth'
 
 export function Login() {
   const { login } = useAuth()
@@ -25,7 +25,7 @@ export function Login() {
     }
   }
 
-  function fillUser(u: typeof DUMMY_USERS[0]) {
+  function fillUser(u: typeof DEMO_ACCOUNTS[0]) {
     setEmail(u.email)
     setPassword(u.password)
     setError('')
@@ -83,9 +83,9 @@ export function Login() {
           <div className="mt-5 pt-4 border-t border-gray-100">
             <p className="text-xs text-gray-400 mb-2">Demo accounts</p>
             <div className="space-y-1">
-              {DUMMY_USERS.map((u) => (
+              {DEMO_ACCOUNTS.map((u) => (
                 <button
-                  key={u.id}
+                  key={u.email}
                   onClick={() => fillUser(u)}
                   className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center justify-between"
                 >

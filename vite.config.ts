@@ -10,4 +10,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api/auth': {
+        target: 'https://terrific-octopus-580.convex.site',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 })

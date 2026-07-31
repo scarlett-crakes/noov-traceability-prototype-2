@@ -1,27 +1,53 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
+import { useMutation, useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
+import { useAuth } from '@/lib/AuthContext'
+import type { Id } from '../../convex/_generated/dataModel'
 
 export function CreateOrigin() {
   const navigate = useNavigate()
+  const { role, orgId } = useAuth()
+  const createOrigin = useMutation(api.origins.create)
+  const allOrgs = useQuery(api.organizations.list, role === 'admin' ? {} : 'skip') ?? []
+
   const [form, setForm] = useState({
     name: '',
-    type: 'business',
+    type: 'business' as 'business' | 'individual',
     phone: '',
     signatory: '',
     address: '',
     declaration_date: '',
+    selected_org_id: '',
   })
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => navigate({ to: '/origins' }), 1500)
+    setError(null)
+    const effectiveOrgId = orgId ?? (form.selected_org_id as Id<'organizations'> | '')
+    if (!effectiveOrgId) { setError('Please select an organization.'); return }
+    try {
+      await createOrigin({
+        name: form.name,
+        type: form.type,
+        address: form.address,
+        signatory: form.signatory,
+        declaration_date: form.declaration_date,
+        phone: form.phone || undefined,
+        owner_org_id: effectiveOrgId as Id<'organizations'>,
+      })
+      setSubmitted(true)
+      setTimeout(() => navigate({ to: '/origins' }), 1500)
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to create point of origin')
+    }
   }
 
   if (submitted) {
@@ -49,31 +75,33 @@ export function CreateOrigin() {
       </div>
 
       <div className="p-6 max-w-xl">
+        {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="bg-white rounded-lg border border-gray-200 p-5">
             <h2 className="text-sm font-medium text-gray-900 mb-4">Depositor Details</h2>
             <div className="grid grid-cols-2 gap-4">
 
+              {role === 'admin' && (
               <div className="col-span-2">
+                <label className="text-xs text-gray-500 block mb-1">Organization <span className="text-red-500">*</span></label>
+                <select name="selected_org_id" value={form.selected_org_id} onChange={handleChange} required
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                  <option value="">Select organization…</option>
+                  {allOrgs.map(o => <option key={o._id} value={o._id}>{o.name}</option>)}
+                </select>
+              </div>
+            )}
+
+            <div className="col-span-2">
                 <label className="text-xs text-gray-500 block mb-1">Name <span className="text-red-500">*</span></label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g. Burger Joint or Maria Garcia"
-                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <input name="name" value={form.name} onChange={handleChange} required placeholder="e.g. Burger Joint or Maria Garcia"
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
 
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Type <span className="text-red-500">*</span></label>
-                <select
-                  name="type"
-                  value={form.type}
-                  onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
+                <select name="type" value={form.type} onChange={handleChange}
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                   <option value="business">Business</option>
                   <option value="individual">Individual</option>
                 </select>
@@ -81,64 +109,35 @@ export function CreateOrigin() {
 
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Phone</label>
-                <input
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  placeholder="+1 213 555 0100"
-                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <input name="phone" value={form.phone} onChange={handleChange} placeholder="+1 213 555 0100"
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
 
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Signatory <span className="text-red-500">*</span></label>
-                <input
-                  name="signatory"
-                  value={form.signatory}
-                  onChange={handleChange}
-                  required
-                  placeholder="Full name of signing party"
-                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <input name="signatory" value={form.signatory} onChange={handleChange} required placeholder="Full name of signing party"
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
 
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Declaration Date <span className="text-red-500">*</span></label>
-                <input
-                  type="date"
-                  name="declaration_date"
-                  value={form.declaration_date}
-                  onChange={handleChange}
-                  required
-                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <input type="date" name="declaration_date" value={form.declaration_date} onChange={handleChange} required
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
 
               <div className="col-span-2">
                 <label className="text-xs text-gray-500 block mb-1">Address <span className="text-red-500">*</span></label>
-                <input
-                  name="address"
-                  value={form.address}
-                  onChange={handleChange}
-                  required
-                  placeholder="Street, City, State"
-                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+                <input name="address" value={form.address} onChange={handleChange} required placeholder="Street, City, State"
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
-
             </div>
           </div>
 
           <div className="flex gap-3">
-            <button
-              type="submit"
-              className="flex-1 bg-emerald-600 text-white text-sm py-2.5 rounded-md hover:bg-emerald-700 transition-colors font-medium"
-            >
+            <button type="submit" className="flex-1 bg-emerald-600 text-white text-sm py-2.5 rounded-md hover:bg-emerald-700 transition-colors font-medium">
               Create Point of Origin
             </button>
-            <Link to="/origins" className="px-5 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
-              Cancel
-            </Link>
+            <Link to="/origins" className="px-5 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">Cancel</Link>
           </div>
         </form>
       </div>

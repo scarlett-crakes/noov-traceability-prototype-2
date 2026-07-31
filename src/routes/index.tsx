@@ -10,6 +10,7 @@ import { AuditLog } from '@/pages/AuditLog'
 import { Settings } from '@/pages/Settings'
 import { Login } from '@/pages/Login'
 import { Assets } from '@/pages/Assets'
+import { AssetDetail } from '@/pages/AssetDetail'
 import { CreateTraceUnit } from '@/pages/CreateTraceUnit'
 import { Lineage } from '@/pages/Lineage'
 import { CreateOrigin } from '@/pages/CreateOrigin'
@@ -39,6 +40,7 @@ const createOriginRoute = createRoute({ getParentRoute: () => appRoute, path: '/
 const originDetailRoute = createRoute({ getParentRoute: () => appRoute, path: '/origins/$id', component: OriginDetail })
 const actorsRoute = createRoute({ getParentRoute: () => appRoute, path: '/actors', component: Actors })
 const assetsRoute = createRoute({ getParentRoute: () => appRoute, path: '/assets', component: Assets })
+const assetDetailRoute = createRoute({ getParentRoute: () => appRoute, path: '/assets/$id', component: AssetDetail })
 const createAssetRoute = createRoute({ getParentRoute: () => appRoute, path: '/assets/new', component: CreateAsset })
 const traceUnitsRoute = createRoute({ getParentRoute: () => appRoute, path: '/trace-units', component: Inventory })
 const traceUnitDetailRoute = createRoute({ getParentRoute: () => appRoute, path: '/trace-units/$id', component: TraceUnitDetail })
@@ -57,6 +59,7 @@ const routeTree = rootRoute.addChildren([
     originDetailRoute,
     actorsRoute,
     assetsRoute,
+    assetDetailRoute,
     createAssetRoute,
     traceUnitsRoute,
     traceUnitDetailRoute,

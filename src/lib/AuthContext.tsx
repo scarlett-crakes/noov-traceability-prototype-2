@@ -1,10 +1,23 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import type { DummyUser, UserRole } from './auth'
-import { DUMMY_USERS } from './auth'
+import { createContext, useContext } from 'react'
+import { useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
+import { authClient } from './auth'
+import type { Id } from '../../convex/_generated/dataModel'
+import type { UserRole } from './auth'
+
+export interface ConvexUser {
+  _id: Id<'users'>
+  name: string
+  email: string
+  role: UserRole
+  org_id?: Id<'organizations'>
+  org?: { _id: Id<'organizations'>; name: string; type: string } | null
+}
 
 interface AuthContextValue {
-  user: DummyUser | null
+  user: ConvexUser | null
   role: UserRole | null
+  orgId: Id<'organizations'> | null
   login: (email: string, password: string) => Promise<{ error?: string }>
   logout: () => void
   isLoading: boolean
@@ -12,36 +25,32 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-const STORAGE_KEY = 'tracy_user_id'
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<DummyUser | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: session, isPending } = authClient.useSession()
 
-  useEffect(() => {
-    const savedId = localStorage.getItem(STORAGE_KEY)
-    if (savedId) {
-      const found = DUMMY_USERS.find((u) => u.id === savedId) ?? null
-      setUser(found)
-    }
-    setIsLoading(false)
-  }, [])
+  // Look up our Convex user (with role + org) by the authenticated email
+  const convexUser = useQuery(
+    api.users.getByEmail,
+    session?.user?.email ? { email: session.user.email } : 'skip',
+  ) as ConvexUser | null | undefined
 
   async function login(email: string, password: string) {
-    const found = DUMMY_USERS.find((u) => u.email === email && u.password === password)
-    if (!found) return { error: 'Invalid email or password' }
-    setUser(found)
-    localStorage.setItem(STORAGE_KEY, found.id)
+    const res = await authClient.signIn.email({ email, password })
+    if (res.error) return { error: res.error.message ?? 'Sign-in failed' }
     return {}
   }
 
-  function logout() {
-    setUser(null)
-    localStorage.removeItem(STORAGE_KEY)
+  async function logout() {
+    await authClient.signOut()
   }
 
+  // isLoading: session still resolving, OR session exists but Convex user not yet fetched
+  const isLoading = isPending || (!!session && convexUser === undefined)
+  const user = session ? (convexUser ?? null) : null
+  const orgId = user?.org_id ?? null
+
   return (
-    <AuthContext.Provider value={{ user, role: user?.role ?? null, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, role: user?.role ?? null, orgId, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   )

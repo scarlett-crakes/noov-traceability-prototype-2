@@ -1,12 +1,18 @@
-import { dummyOrigins } from '@/data/dummy'
+import { useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 import { useParams, Link } from '@tanstack/react-router'
 import { ArrowLeft, Lock } from 'lucide-react'
+import type { Id } from '../../convex/_generated/dataModel'
 
 export function OriginDetail() {
   const { id } = useParams({ from: '/app/origins/$id' })
-  const origin = dummyOrigins.find((o) => o.id === id)
+  const origin = useQuery(api.origins.get, { id: id as Id<'pointsOfOrigin'> })
 
-  if (!origin) {
+  if (origin === undefined) {
+    return <div className="p-6 text-sm text-gray-400">Loading…</div>
+  }
+
+  if (origin === null) {
     return (
       <div className="p-6">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -35,11 +41,11 @@ export function OriginDetail() {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Name</p>
-              <p className="text-gray-900">{origin.name || '—'}</p>
+              <p className="text-gray-900">{origin.name}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Type</p>
-              <p className="text-gray-900 capitalize">{origin.type || '—'}</p>
+              <p className="text-gray-900 capitalize">{origin.type}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Phone</p>
@@ -47,15 +53,15 @@ export function OriginDetail() {
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Signatory</p>
-              <p className="text-gray-900">{origin.signatory || '—'}</p>
+              <p className="text-gray-900">{origin.signatory}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 mb-0.5">Declaration Date</p>
-              <p className="text-gray-900">{origin.declaration_date ? new Date(origin.declaration_date).toLocaleDateString() : '—'}</p>
+              <p className="text-gray-900">{new Date(origin.declaration_date).toLocaleDateString()}</p>
             </div>
             <div className="col-span-2">
               <p className="text-xs text-gray-500 mb-0.5">Address</p>
-              <p className="text-gray-900">{origin.address || '—'}</p>
+              <p className="text-gray-900">{origin.address}</p>
             </div>
           </div>
         </div>

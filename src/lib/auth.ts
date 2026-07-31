@@ -1,21 +1,20 @@
 import { createAuthClient } from 'better-auth/react'
 
+// Both dev (Vite proxy) and prod (Pages Function) serve /api/auth from the same origin,
+// so we can always use window.location.origin.
+const authBaseURL = typeof window !== 'undefined' ? window.location.origin : ''
+
 export const authClient = createAuthClient({
-  baseURL: 'http://localhost:3000',
+  baseURL: authBaseURL,
+  basePath: '/api/auth',
+  fetchOptions: { credentials: 'include' },
 })
 
 export type UserRole = 'admin' | 'collector' | 'auditor'
 
-export interface DummyUser {
-  id: string
-  name: string
-  email: string
-  role: UserRole
-  password: string
-}
-
-export const DUMMY_USERS: DummyUser[] = [
-  { id: 'u1', name: 'Admin User', email: 'admin@tracy.com', password: 'admin123', role: 'admin' },
-  { id: 'u2', name: 'Collector A', email: 'collector@tracy.com', password: 'collector123', role: 'collector' },
-  { id: 'u3', name: 'Auditor A', email: 'auditor@tracy.com', password: 'auditor123', role: 'auditor' },
+// Kept for the Login page demo-fill buttons only (passwords shown in UI)
+export const DEMO_ACCOUNTS = [
+  { name: 'Admin User', email: 'admin@tracy.com', password: 'admin123', role: 'admin' as UserRole },
+  { name: 'Collector A', email: 'collector@tracy.com', password: 'collector123', role: 'collector' as UserRole },
+  { name: 'Auditor A', email: 'auditor@tracy.com', password: 'auditor123', role: 'auditor' as UserRole },
 ]
