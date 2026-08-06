@@ -1,66 +1,102 @@
-# Tracy — Traceability MVP Frontend
+# Tracy
 
-Frontend for the Tracy UCO traceability platform. Built with React + Vite + TanStack Router + Tailwind CSS + shadcn/ui. All data is dummy/static — no backend connection required.
+Supply chain traceability platform for used cooking oil (UCO), built by [Noovoleum](https://noovoleum.com). Tracy tracks the full chain of custody for trace units from point of origin through collection, storage, and audit — with role-based access for admins, collectors, and auditors.
 
-## Requirements
+**Live:** https://traceability.ucollect.dev
 
-- [Node.js](https://nodejs.org/) v18 or higher
-- npm (comes with Node)
+---
 
-## Running locally
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React + TypeScript + Vite |
+| Routing | TanStack Router |
+| Backend | Convex (real-time database + HTTP actions) |
+| Auth | better-auth (hashed passwords, session management) |
+| Styling | Tailwind CSS |
+| Icons | Lucide React |
+| Lineage graph | React Flow (@xyflow/react) |
+| Deployment | Cloudflare Pages |
+
+---
+
+## Getting started
+
+### Prerequisites
+
+- Node.js v18+
+- A [Convex](https://convex.dev) account and deployment
+
+### Local development
 
 ```bash
-# 1. Clone the repo
 git clone https://github.com/noovoleum/noov-traceability-prototype-2.git
 cd noov-traceability-prototype-2
-
-# 2. Install dependencies
 npm install
-
-# 3. Start the dev server
-npm run dev
 ```
 
-Then open **http://localhost:5173** in your browser.
+Set up your environment variables in `.env.local`:
+
+```
+VITE_CONVEX_URL=https://<your-deployment>.convex.cloud
+VITE_CONVEX_SITE_URL=https://<your-deployment>.convex.site
+```
+
+Start the Convex dev server and the frontend:
+
+```bash
+npx convex dev        # in one terminal
+npm run dev           # in another
+```
+
+Open **http://localhost:5173**.
+
+---
+
+## Deployment
+
+Build and deploy to Cloudflare Pages:
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name <your-project-name>
+```
+
+---
 
 ## Demo accounts
 
-Use these to log in — no setup needed:
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@tracy.com | admin123 |
+| Collector | collector@tracy.com | collector123 |
+| Auditor | auditor@tracy.com | auditor123 |
 
-| Role      | Email                   | Password       |
-|-----------|-------------------------|----------------|
-| Admin     | admin@tracy.com         | admin123       |
-| Collector | collector@tracy.com     | collector123   |
-| Auditor   | auditor@tracy.com       | auditor123     |
+---
 
 ## Role permissions
 
-| Feature              | Admin | Collector | Auditor |
-|----------------------|:-----:|:---------:|:-------:|
-| Dashboard            | ✅    | ✅        | ✅      |
-| Inventory            | ✅    | ✅        | ✅ (read-only) |
-| Assets & Storage     | ✅    | ✅        | ✅      |
-| Origins (PoO)        | ✅    | ✅        | ❌      |
-| Actors               | ✅    | ❌        | ❌      |
-| Trace Units          | ✅    | ✅        | ✅ (read-only) |
-| Audit Log            | ✅    | ❌        | ✅      |
-| Settings             | ✅    | ❌        | ❌      |
-| Create Trace Unit    | ✅    | ✅        | ❌      |
+| Feature | Admin | Collector | Auditor |
+|---|:---:|:---:|:---:|
+| Dashboard | ✅ | ✅ | ✅ |
+| Inventory | ✅ | ✅ | ✅ read-only |
+| Assets | ✅ | ✅ | ✅ |
+| Origins (PoO) | ✅ | ✅ | ❌ |
+| Trace Units | ✅ | ✅ | ✅ read-only |
+| TU Split | ✅ | ✅ | ❌ |
+| Lineage | ✅ | ✅ | ✅ |
+| Audit Log | ✅ | ❌ | ✅ |
+| Actors | ✅ | ❌ | ❌ |
+| Settings | ✅ | ❌ | ❌ |
 
-## Tech stack
+---
 
-- [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- [Vite](https://vite.dev/)
-- [TanStack Router](https://tanstack.com/router)
-- [TanStack Query](https://tanstack.com/query)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Lucide React](https://lucide.dev/) icons
-- [React Flow (@xyflow/react)](https://reactflow.dev/) for TU lineage graph
-- [better-auth](https://www.better-auth.com/) client (mock auth — no backend)
-
-## Other commands
+## Commands
 
 ```bash
-npm run build    # production build → dist/
-npm run preview  # preview the production build locally
+npm run dev       # start local dev server (http://localhost:5173)
+npm run build     # production build → dist/
+npm run preview   # preview production build locally
+npx convex dev    # run Convex backend locally
 ```
